@@ -1,21 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import Amplify, { Auth } from "aws-amplify";
+import AWSAppSyncClient from "aws-appsync";
+import { ApolloProvider } from "react-apollo";
+import { Rehydrated } from "aws-appsync-react";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import Home from "./Home";
+import AppSyncConfig from "./aws-exports";
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+Amplify.configure({
+  ...AppSyncConfig,
+  Analytics: {
+    disabled: true,
   },
 });
+
+const client = new AWSAppSyncClient({
+  disableOffline: true,
+  url: AppSyncConfig.aws_appsync_graphqlEndpoint,
+  region: AppSyncConfig.aws_appsync_region,
+  auth: {
+    type: AppSyncConfig.aws_appsync_authenticationType,
+    async jwtToken() {
+      const session = await Auth.currentSession();
+      return session.getIdToken().getJwtToken();
+    },
+  },
+});
+
+export default () => (
+  <ApolloProvider client={client}>
+    <Rehydrated>
+      <Home />
+    </Rehydrated>
+  </ApolloProvider>
+);

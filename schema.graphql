@@ -1,0 +1,28 @@
+type Spot
+  @model
+  @searchable
+  @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
+  id: ID!
+  name: String!
+  description: String
+  location: Location!
+  tags: [Tag!]!
+}
+type Location {
+  lat: Float!
+  lon: Float!
+}
+enum Tag {
+  LEDGE
+  STAIRS
+  HANDRAIL
+  FLATBAR
+  BANK
+  HUBBA
+  MANUAL
+  TRANSITION
+  CURB
+  HILLBOMB
+  RAMP
+  WALLRIDE
+}
