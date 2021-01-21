@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect, useMemo } from "react";
-import { withAuthenticator, AmplifyTheme } from "aws-amplify-react-native";
 import {
   Dimensions,
   StyleSheet,
@@ -39,7 +38,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function CreateSpot({ location }) {
+function SpotForm({ location }) {
   const [state, setState] = useState({
     name: "",
     description: "",
@@ -113,7 +112,7 @@ function CreateSpot({ location }) {
   );
 }
 
-function Home() {
+function CreateSpot() {
   const [region, setRegion] = useState({
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
@@ -160,7 +159,7 @@ function Home() {
           }}
         />
       </MapView>
-      <CreateSpot
+      <SpotForm
         location={{
           lat: region.latitude,
           lon: region.longitude,
@@ -171,33 +170,4 @@ function Home() {
   );
 }
 
-const theme = {
-  ...AmplifyTheme,
-  ...StyleSheet.create({
-    button: {
-      ...AmplifyTheme.button,
-      backgroundColor: "#3F20BA",
-    },
-    buttonDisabled: {
-      ...AmplifyTheme.buttonDisabled,
-      backgroundColor: "#3F20BA",
-    },
-    sectionFooterLink: {
-      ...AmplifyTheme.sectionFooterLink,
-      color: "#3F20BA",
-    },
-  }),
-};
-
-export default withAuthenticator(
-  Home,
-  {
-    usernameAttributes: "email",
-    signUpConfig: {
-      hiddenDefaults: ["phone_number"],
-    },
-  },
-  null,
-  null,
-  theme
-);
+export default CreateSpot;
