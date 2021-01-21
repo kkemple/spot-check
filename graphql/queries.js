@@ -42,36 +42,3 @@ export const listSpots = /* GraphQL */ `
     }
   }
 `;
-export const searchSpots = /* GraphQL */ `
-  query SearchSpots(
-    $filter: SearchableSpotFilterInput
-    $sort: SearchableSpotSortInput
-    $limit: Int
-    $nextToken: String
-    $from: Int
-  ) {
-    searchSpots(
-      filter: $filter
-      sort: $sort
-      limit: $limit
-      nextToken: $nextToken
-      from: $from
-    ) {
-      items {
-        id
-        name
-        description
-        location {
-          lat
-          lon
-        }
-        tags
-        createdAt
-        updatedAt
-        owner
-      }
-      nextToken
-      total
-    }
-  }
-`;

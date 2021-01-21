@@ -1,6 +1,5 @@
 type Spot
   @model
-  @searchable
   @auth(rules: [{ allow: owner, operations: [create, update, delete] }]) {
   id: ID!
   name: String!

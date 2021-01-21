@@ -1,30 +1,48 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { withAuthenticator, AmplifyTheme } from "aws-amplify-react-native";
-import { StyleSheet, Text, Button, TextInput, View } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  Button,
+  TextInput,
+  View,
+  KeyboardAvoidingView,
+} from "react-native";
+
 import { Query, Mutation } from "react-apollo";
 import gql from "graphql-tag";
 import { createSpot } from "./graphql/mutations";
 import { listSpots } from "./graphql/queries";
+import MapView, { Marker } from "react-native-maps";
+import * as Location from "expo-location";
+import debounce from "lodash.debounce";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
   },
   text: {
     fontSize: 32,
   },
+  createSpot: {
+    backgroundColor: "#fff",
+    marginTop: "auto",
+    padding: 8,
+  },
+  map: {
+    position: "absolute",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+  },
 });
 
-function CreateSpot() {
+function CreateSpot({ location }) {
   const [state, setState] = useState({
     name: "",
     description: "",
-    lat: 0,
-    lon: 0,
     tags: [],
   });
 
@@ -61,7 +79,7 @@ function CreateSpot() {
       `}
     >
       {(createSpot, { loading, error }) => (
-        <View>
+        <KeyboardAvoidingView style={styles.createSpot}>
           {error && <Text>{error.message}</Text>}
           <TextInput
             onChangeText={updateState("name")}
@@ -73,18 +91,6 @@ function CreateSpot() {
             value={state.description}
             placeholder="Describe the spot"
           />
-          <Text>Latitude</Text>
-          <TextInput
-            onChangeText={updateState("lat")}
-            value={state.lat}
-            keyboardType="numeric"
-          />
-          <Text>Longitude</Text>
-          <TextInput
-            onChangeText={updateState("lon")}
-            value={state.lon}
-            keyboardType="numeric"
-          />
           <Button
             disabled={loading}
             onPress={() =>
@@ -93,10 +99,7 @@ function CreateSpot() {
                   input: {
                     name: state.name,
                     description: state.description,
-                    location: {
-                      lat: state.lat,
-                      lon: state.lon,
-                    },
+                    location,
                     tags: state.tags,
                   },
                 },
@@ -104,40 +107,66 @@ function CreateSpot() {
             }
             title="Create spot"
           />
-        </View>
+        </KeyboardAvoidingView>
       )}
     </Mutation>
   );
 }
 
 function Home() {
+  const [region, setRegion] = useState({
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+    latitude: 0,
+    longitude: 0,
+  });
+
+  function handleRegionChange(region) {
+    setRegion(region);
+  }
+
+  const debouncedRegionChange = useMemo(
+    () => debounce(handleRegionChange, 100),
+    []
+  );
+
+  useEffect(() => {
+    Location.requestPermissionsAsync().then(async ({ status }) => {
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return;
+      }
+
+      const { coords } = await Location.getCurrentPositionAsync({});
+      setRegion((prev) => ({
+        ...prev,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      }));
+    });
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Query
-        query={gql`
-          ${listSpots}
-        `}
+      <MapView
+        style={styles.map}
+        region={region}
+        onRegionChange={debouncedRegionChange}
       >
-        {({ data, error, loading }) => {
-          if (loading) {
-            return <Text>One moment</Text>;
-          }
-
-          if (error) {
-            return <Text>{error.message}</Text>;
-          }
-
-          return (
-            <>
-              <CreateSpot />
-              <Text style={styles.text}>
-                There are {data.listSpots.items.length} spots
-              </Text>
-              <StatusBar style="auto" />
-            </>
-          );
+        <Marker
+          coordinate={{
+            latitude: region.latitude,
+            longitude: region.longitude,
+          }}
+        />
+      </MapView>
+      <CreateSpot
+        location={{
+          lat: region.latitude,
+          lon: region.longitude,
         }}
-      </Query>
+      />
+      <StatusBar style="auto" />
     </View>
   );
 }
