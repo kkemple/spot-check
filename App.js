@@ -10,6 +10,7 @@ import { Text, View, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { withAuthenticator, AmplifyTheme } from "aws-amplify-react-native";
 
+import Spots from "./Spots";
 import CreateSpot from "./CreateSpot";
 import AppSyncConfig from "./aws-exports";
 
@@ -33,21 +34,7 @@ const client = new AWSAppSyncClient({
   },
 });
 
-const styles = StyleSheet.create({
-  home: {
-    flex: 1,
-  },
-  homeText: {
-    fontSize: 24,
-  },
-});
-
 const Tab = createBottomTabNavigator();
-const Home = () => (
-  <View style={styles.home}>
-    <Text style={styles.homeText}>Welcome to SpotCheck</Text>
-  </View>
-);
 
 const PRIMARY_COLOR = "#3F20BA";
 
@@ -59,7 +46,7 @@ const App = () => (
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => (
               <Ionicons
-                name={route.name === "Home" ? "ios-home" : "ios-create"}
+                name={route.name === "Spots" ? "ios-home" : "ios-create"}
                 size={size}
                 color={color}
               />
@@ -70,7 +57,7 @@ const App = () => (
             inactiveTintColor: "gray",
           }}
         >
-          <Tab.Screen name="Home" component={Home} />
+          <Tab.Screen name="Spots" component={Spots} />
           <Tab.Screen name="CreateSpot" component={CreateSpot} />
         </Tab.Navigator>
       </NavigationContainer>
