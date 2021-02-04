@@ -13,11 +13,11 @@ import { Query, Mutation } from "react-apollo";
 import gql from "graphql-tag";
 import { listSpots } from "./graphql/queries";
 import MapView, { Marker } from "react-native-maps";
+import SpotsCarousel from "./Carousel";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   text: {
     fontSize: 32,
@@ -27,9 +27,15 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   },
+  carousel: {
+    marginTop: "auto",
+    marginBottom: 20,
+  },
 });
 
 function Spots() {
+  const [index, setIndex] = useState(0);
+
   return (
     <View style={styles.container}>
       <Query
@@ -47,7 +53,8 @@ function Spots() {
           }
 
           const { items } = data.listSpots;
-          const { lat, lon } = items[0].location;
+          const { lat, lon } = items[index].location;
+
           return (
             <>
               <MapView
@@ -72,6 +79,11 @@ function Spots() {
                   );
                 })}
               </MapView>
+              <SpotsCarousel
+                spots={items}
+                onIndexChange={setIndex}
+                layoutStyles={styles.carousel}
+              />
             </>
           );
         }}

@@ -6,13 +6,15 @@ import { ApolloProvider } from "react-apollo";
 import { Rehydrated } from "aws-appsync-react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Text, View, StyleSheet } from "react-native";
+import { YellowBox, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { withAuthenticator, AmplifyTheme } from "aws-amplify-react-native";
 
 import Spots from "./Spots";
 import CreateSpot from "./CreateSpot";
 import AppSyncConfig from "./aws-exports";
+
+YellowBox.ignoreWarnings([""]);
 
 Amplify.configure({
   ...AppSyncConfig,
